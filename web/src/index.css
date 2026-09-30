@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta baseada no tema Dark+ (padrao) do VS Code, com a area da pagina em preto */
+  --vs-bg-app: #000000;
+  --vs-bg-titlebar: #3c3c3c;
+  --vs-bg-activitybar: #333333;
+  --vs-bg-sidebar: #252526;
+  /* Cinza fraquissimo, quase preto: so o interior do card do editor */
+  --vs-bg-editor: #0d0d0d;
+  --vs-bg-tab-active: #1e1e1e;
+  --vs-bg-tab-inactive: #2d2d2d;
+  --vs-bg-statusbar: #007acc;
+  --vs-bg-hover: #2a2d2e;
+  --vs-bg-selected: #37373d;
+  --vs-border: #1e1e1e;
+  --vs-border-light: #454545;
+  --vs-border-group: #333333;
+  --vs-text: #cccccc;
+  --vs-text-muted: #969696;
+  --vs-text-dim: #6a6a6a;
+  --vs-accent: #007acc;
+  --vs-accent-blue: #3794ff;
+  --vs-folder-icon: #dcb67a;
+  --vs-file-icon: #519aba;
+  --vs-danger: #f14c4c;
+  --vs-success: #89d185;
+  --vs-font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --vs-font-mono: "Consolas", "SF Mono", ui-monospace, "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Altura util: dvh acompanha a barra de enderecos que aparece/Some no Android,
+   o 100vh estatico empurrava a status bar (e o botao Salvar) para fora da tela. */
+.vs-viewport {
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--vs-bg-editor);
+  color: var(--vs-text);
+  font-family: var(--vs-font-ui);
+  font-size: 13px;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+/* Alvos de toque maiores em telas pequenas */
+@media (pointer: coarse) {
+  button {
+    touch-action: manipulation;
+  }
+}
+
+/* Scrollbar estilo VS Code: fina, sem seta, aparece so no hover do container */
+.vs-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a transparent;
+}
+.vs-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.vs-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 0;
+}
+.vs-scroll:hover::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+}
+.vs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea:focus {
+  outline: none;
+}
