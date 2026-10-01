@@ -219,10 +219,10 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
 
   return (
     <div
-      className="h-full min-h-0 shrink-0 flex flex-col overflow-hidden relative"
+      className="h-full min-h-0 shrink-0 flex flex-col relative"
       style={{ width: `${width}px` }}
     >
-      <div className="flex items-center justify-between px-3 pt-2 pb-1 text-[11px] tracking-wide text-[color:var(--vs-text-muted)] shrink-0">
+      <div className="flex items-center justify-between px-3 pt-2 pb-1 text-[11px] tracking-wide text-[color:var(--vs-text-muted)] shrink-0 overflow-hidden">
         <div className="flex items-center gap-3">
           <span>EXPLORER</span>
           {tab && (
@@ -248,7 +248,7 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-1 pl-3 pr-1.5 pb-0.5 shrink-0">
+      <div className="flex items-center justify-between gap-1 pl-3 pr-1.5 pb-0.5 shrink-0 overflow-hidden">
         <button
           onClick={openFolderPicker}
           title="Abrir outra pasta"
@@ -359,10 +359,10 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
         onPointerDown={onResizeStart}
         onDoubleClick={onResizeReset}
         title="Arraste para redimensionar"
-        className="absolute right-0 top-0 h-full w-3 cursor-col-resize touch-none select-none flex items-center justify-end"
+        className="absolute -right-2 top-0 h-full w-4 cursor-col-resize touch-none select-none flex items-center justify-center z-50"
         style={{ background: 'transparent' }}
       >
-        <div className="w-1 h-12 bg-gray-600 rounded-full mr-0.5 opacity-50" />
+        <div className="w-1 h-12 bg-gray-600 rounded-full opacity-50" />
       </div>
     </div>
   );
