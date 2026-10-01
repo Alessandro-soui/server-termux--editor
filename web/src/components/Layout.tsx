@@ -77,7 +77,7 @@ export default function Layout() {
       >
         {/* Activity bar + Explorer no mesmo card preto, com linha fina nas bordas */}
         <div
-          className="flex h-full min-h-0 shrink-0 overflow-hidden rounded-[5px]"
+          className="flex h-full min-h-0 shrink-0 rounded-[5px]"
           style={{ background: 'var(--vs-bg-app)', border: '1px solid var(--vs-border-group)' }}
         >
           <ActivityBar />
