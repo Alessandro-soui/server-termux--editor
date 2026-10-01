@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { VscEllipsis as MoreHorizontal, VscLayoutSidebarLeft as PanelLeft, VscSaveAll as Save, VscTerminal as TerminalIcon } from 'react-icons/vsc';
+import { VscEllipsis as MoreHorizontal, VscLayoutSidebarLeft as PanelLeft, VscSaveAll as Save } from 'react-icons/vsc';
 import { useWorkspace } from '../context/WorkspaceContext';
 import TitleBarMenuModal from './TitleBarMenuModal';
 
@@ -77,10 +77,10 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
           onClick={toggleTerminal}
           disabled={!rootPath}
           title={rootPath ? "Terminal" : "Abra uma pasta para usar o Terminal"}
-          className="shrink-0 p-1 disabled:opacity-30 disabled:cursor-not-allowed"
+          className="shrink-0 px-2 py-1 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed uppercase font-semibold"
           style={{ color: isTerminalOpen && rootPath ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
         >
-          <TerminalIcon size={14} />
+          Terminal
         </button>
 
         <button

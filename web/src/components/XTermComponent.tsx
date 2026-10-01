@@ -8,6 +8,7 @@ interface XTermComponentProps {
   visible: boolean;
   cwd: string;
   onExit: () => void;
+  onProcessChange?: (name: string) => void;
 }
 
 export interface XTermRef {
@@ -15,7 +16,7 @@ export interface XTermRef {
   clear: () => void;
 }
 
-const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd, onExit }, ref) => {
+const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd, onExit, onProcessChange }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -25,10 +26,12 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd
   // Guardamos onExit e visible em refs para evitar recriar o terminal
   const onExitRef = useRef(onExit);
   const visibleRef = useRef(visible);
+  const onProcessChangeRef = useRef(onProcessChange);
   useEffect(() => {
     onExitRef.current = onExit;
     visibleRef.current = visible;
-  }, [onExit, visible]);
+    onProcessChangeRef.current = onProcessChange;
+  }, [onExit, visible, onProcessChange]);
 
   useImperativeHandle(ref, () => ({
     sendData: (data: string) => {
@@ -49,7 +52,7 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd
       fontFamily: 'monospace',
       fontSize: 13,
       theme: {
-        background: '#1e1e1e', // vscode-like background
+        background: '#000000', // black background as requested
       }
     });
     
@@ -93,6 +96,8 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd
         } else if (msg.type === 'exit') {
           ws.close();
           onExitRef.current();
+        } else if (msg.type === 'process' && msg.name) {
+          onProcessChangeRef.current?.(msg.name);
         }
       } catch (e) {
         console.error('Erro ao processar mensagem do WS:', e);

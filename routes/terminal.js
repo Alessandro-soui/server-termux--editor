@@ -46,6 +46,23 @@ function setupTerminalWebSocket(wss) {
         }
       });
 
+      // Polling para detectar mudança no processo em primeiro plano
+      let lastProcess = 'bash';
+      const processInterval = setInterval(() => {
+        try {
+          const currentProcess = ptyProcess.process;
+          if (currentProcess && currentProcess !== lastProcess) {
+            lastProcess = currentProcess;
+            if (ws.readyState === ws.OPEN) {
+              ws.send(JSON.stringify({ type: 'process', name: currentProcess }));
+            }
+          }
+        } catch (e) {}
+      }, 500);
+
+      // Limpar o intervalo ao fechar
+      ws.on('close', () => clearInterval(processInterval));
+
     } catch (err) {
       console.error('[Terminal] Erro ao iniciar processo PTY:', err);
       if (ws.readyState === ws.OPEN) {

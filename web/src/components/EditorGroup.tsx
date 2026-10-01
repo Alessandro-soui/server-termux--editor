@@ -1,22 +1,75 @@
+import { useState, useCallback, useRef, type PointerEvent as ReactPointerEvent } from 'react';
 import TabBar from './TabBar';
 import EditorPane from './EditorPane';
 import TerminalPanel from './TerminalPanel';
+import { useWorkspace } from '../context/WorkspaceContext';
 
-// O "grupo de editors" do VS Code: a tab strip e a area de edicao formam um
-// unico card com borda e cantos arredondados. O espacamento ao redor vem do
-// frame em Layout.tsx.
 export default function EditorGroup() {
+  const { isTerminalOpen, rootPath } = useWorkspace();
+  const showTerminal = isTerminalOpen && Boolean(rootPath);
+  const [terminalHeight, setTerminalHeight] = useState(256);
+  const heightRef = useRef(terminalHeight);
+
+  const handleResizeStart = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const startY = e.clientY;
+    const startHeight = heightRef.current;
+
+    const move = (ev: PointerEvent) => {
+      // Movimento para cima aumenta o terminal (clientY menor = delta negativo)
+      const deltaY = startY - ev.clientY;
+      const nextHeight = Math.max(100, Math.min(window.innerHeight - 150, startHeight + deltaY));
+      heightRef.current = nextHeight;
+      setTerminalHeight(nextHeight);
+    };
+
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  }, []);
+
   return (
-    <div
-      className="flex-1 min-w-0 flex flex-col overflow-hidden rounded-[5px]"
-      style={{
-        background: 'var(--vs-bg-editor)',
-        border: '1px solid var(--vs-border-group)',
-      }}
-    >
-      <TabBar />
-      <EditorPane />
-      <TerminalPanel />
+    <div className="flex-1 min-w-0 flex flex-col overflow-hidden gap-1.5">
+      {/* Bloco do Editor */}
+      <div
+        className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[5px]"
+        style={{
+          background: 'var(--vs-bg-editor)',
+          border: '1px solid var(--vs-border-group)',
+        }}
+      >
+        <TabBar />
+        <EditorPane />
+      </div>
+
+      {/* Divisor / Resizer */}
+      {showTerminal && (
+        <div
+          className="h-1 -my-1.5 shrink-0 cursor-row-resize z-10 transition-colors hover:bg-blue-500/50"
+          onPointerDown={handleResizeStart}
+        />
+      )}
+
+      {/* Bloco do Terminal */}
+      {showTerminal && (
+        <div
+          className="shrink-0 flex overflow-hidden rounded-[5px]"
+          style={{
+            height: terminalHeight,
+            background: 'var(--vs-bg-editor)',
+            border: '1px solid var(--vs-border-group)',
+          }}
+        >
+          <TerminalPanel />
+        </div>
+      )}
     </div>
   );
 }
