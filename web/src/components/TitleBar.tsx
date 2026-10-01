@@ -75,9 +75,10 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
 
         <button
           onClick={toggleTerminal}
-          title="Terminal"
-          className="shrink-0 p-1"
-          style={{ color: isTerminalOpen ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
+          disabled={!rootPath}
+          title={rootPath ? "Terminal" : "Abra uma pasta para usar o Terminal"}
+          className="shrink-0 p-1 disabled:opacity-30 disabled:cursor-not-allowed"
+          style={{ color: isTerminalOpen && rootPath ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
         >
           <TerminalIcon size={14} />
         </button>

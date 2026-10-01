@@ -1,19 +1,20 @@
 import { useRef, useState } from 'react';
-import { VscAdd, VscTrash, VscArrowUp, VscArrowDown, VscArrowLeft, VscArrowRight, VscNewline } from 'react-icons/vsc';
+import { VscAdd, VscTrash, VscArrowUp, VscArrowDown, VscArrowLeft, VscArrowRight, VscNewline, VscClearAll } from 'react-icons/vsc';
 import { useWorkspace } from '../context/WorkspaceContext';
 import XTermComponent, { type XTermRef } from './XTermComponent';
 
 export default function TerminalPanel() {
-  const { isTerminalOpen } = useWorkspace();
-  const [terminals, setTerminals] = useState<{ id: number; name: string }[]>([]);
+  const { isTerminalOpen, rootPath } = useWorkspace();
+  const [terminals, setTerminals] = useState<{ id: number; name: string; cwd: string }[]>([]);
   const [activeTermId, setActiveTermId] = useState<number | null>(null);
   const [nextId, setNextId] = useState(1);
   const termRefs = useRef<Record<number, XTermRef | null>>({});
 
-  if (!isTerminalOpen) return null;
+  // Só mostra o painel se estiver aberto E houver uma pasta raiz selecionada
+  if (!isTerminalOpen || !rootPath) return null;
 
   const handleAddTerminal = () => {
-    const newTerm = { id: nextId, name: `bash` };
+    const newTerm = { id: nextId, name: `bash`, cwd: rootPath };
     setTerminals((prev) => [...prev, newTerm]);
     setActiveTermId(nextId);
     setNextId((id) => id + 1);
@@ -45,6 +46,15 @@ export default function TerminalPanel() {
     }
   };
 
+  const clearTerminal = () => {
+    if (activeTermId !== null) {
+      const term = termRefs.current[activeTermId];
+      if (term) {
+        term.clear();
+      }
+    }
+  };
+
   const btnClass = "p-1.5 hover:bg-white/10 rounded text-gray-400 hover:text-white flex items-center justify-center";
 
   return (
@@ -65,6 +75,8 @@ export default function TerminalPanel() {
           <div className="w-px h-4 bg-gray-600 mx-1"></div>
           <button onClick={() => sendCommand('\r')} className={btnClass} title="Enter"><VscNewline size={16} /></button>
           <button onClick={() => sendCommand('\x03')} className={`${btnClass} text-[11px] font-bold`} title="Ctrl+C">Ctrl+C</button>
+          <div className="w-px h-4 bg-gray-600 mx-1"></div>
+          <button onClick={clearTerminal} className={btnClass} title="Limpar (Clear)"><VscClearAll size={16} /></button>
         </div>
 
         <div className="flex-1 relative overflow-hidden">
@@ -73,6 +85,7 @@ export default function TerminalPanel() {
               key={t.id}
               ref={(el) => { termRefs.current[t.id] = el; }}
               visible={activeTermId === t.id}
+              cwd={t.cwd}
               onExit={() => handleRemoveTerminal(t.id)}
             />
           ))}
@@ -106,7 +119,7 @@ export default function TerminalPanel() {
             >
               <span className="truncate">{t.name}</span>
               <button
-                className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-1 rounded"
+                className="hover:text-red-400 p-1 rounded"
                 title="Fechar (Kill)"
                 onClick={(e) => {
                   e.stopPropagation();

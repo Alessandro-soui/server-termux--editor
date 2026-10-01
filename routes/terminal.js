@@ -1,15 +1,30 @@
 const { spawn } = require('droid-pty');
 const { ROOT_DIR } = require('../config/config');
+const { resolveSafePath } = require('../utils/pathUtils');
 
 function setupTerminalWebSocket(wss) {
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, request) => {
     let ptyProcess = null;
 
     try {
+      // Extrai o cwd da URL
+      const url = new URL(request.url, 'http://localhost');
+      const cwdParam = url.searchParams.get('cwd') || '/';
+      
+      // Valida o cwd para garantir que está dentro do ROOT_DIR
+      let safeCwd;
+      try {
+        safeCwd = resolveSafePath(cwdParam);
+      } catch (err) {
+        console.error('[Terminal] CWD inválido:', err.message);
+        ws.close();
+        return;
+      }
+
       ptyProcess = spawn('bash', ['-l'], {
         cols: 80,
         rows: 24,
-        cwd: ROOT_DIR,
+        cwd: safeCwd,
         env: process.env
       });
 

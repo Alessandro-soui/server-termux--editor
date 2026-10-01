@@ -6,25 +6,38 @@ import { useSettings } from '../context/SettingsContext';
 
 interface XTermComponentProps {
   visible: boolean;
+  cwd: string;
   onExit: () => void;
 }
 
 export interface XTermRef {
   sendData: (data: string) => void;
+  clear: () => void;
 }
 
-const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, onExit }, ref) => {
+const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd, onExit }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const { token } = useSettings();
+  
+  // Guardamos onExit e visible em refs para evitar recriar o terminal
+  const onExitRef = useRef(onExit);
+  const visibleRef = useRef(visible);
+  useEffect(() => {
+    onExitRef.current = onExit;
+    visibleRef.current = visible;
+  }, [onExit, visible]);
 
   useImperativeHandle(ref, () => ({
     sendData: (data: string) => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: 'input', data }));
       }
+    },
+    clear: () => {
+      terminalRef.current?.clear();
     }
   }));
 
@@ -51,12 +64,13 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, onE
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     let wsUrl = '';
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    const cwdQuery = encodeURIComponent(cwd);
     
     if (apiBaseUrl) {
       const url = new URL(apiBaseUrl, window.location.origin);
-      wsUrl = `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}/api/terminal?token=${token}`;
+      wsUrl = `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}/api/terminal?token=${token}&cwd=${cwdQuery}`;
     } else {
-      wsUrl = `${protocol}//${window.location.host}/api/terminal?token=${token}`;
+      wsUrl = `${protocol}//${window.location.host}/api/terminal?token=${token}&cwd=${cwdQuery}`;
     }
 
     const ws = new WebSocket(wsUrl);
@@ -78,7 +92,7 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, onE
           term.write(msg.data);
         } else if (msg.type === 'exit') {
           ws.close();
-          onExit();
+          onExitRef.current();
         }
       } catch (e) {
         console.error('Erro ao processar mensagem do WS:', e);
@@ -92,7 +106,7 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, onE
     });
 
     const handleResize = () => {
-      if (visible) {
+      if (visibleRef.current) {
         fitAddon.fit();
         const dims = fitAddon.proposeDimensions();
         if (dims && ws.readyState === WebSocket.OPEN) {
@@ -108,7 +122,7 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, onE
       term.dispose();
       ws.close();
     };
-  }, [token, onExit]);
+  }, [token]); // removido cwd e onExit das dependências para evitar recriar o terminal
 
   // Se a visibilidade mudar para true, recalcula o fit
   useEffect(() => {
