@@ -53,28 +53,27 @@ export default function EditorGroup() {
         <EditorPane />
       </div>
 
-      {/* Divisor / Resizer */}
+      {/* Bloco do Terminal (agora englobando o Resizer de forma sobreposta) */}
       {showTerminal && (
-        <div
-          className="h-2 shrink-0 cursor-row-resize z-10 flex items-center justify-center touch-none"
-          onPointerDown={handleResizeStart}
-          style={{ background: 'var(--vs-bg-app)' }}
-        >
-          <div className="w-12 h-1 bg-gray-600 rounded-full" />
-        </div>
-      )}
+        <div className="relative shrink-0 flex flex-col">
+          {/* Divisor / Resizer - absolute para não somar espaços no gap do flex */}
+          <div
+            className="absolute left-0 right-0 -top-2 h-4 cursor-row-resize z-20 flex items-center justify-center touch-none"
+            onPointerDown={handleResizeStart}
+          >
+            <div className="w-12 h-1 bg-gray-600 rounded-full opacity-60" />
+          </div>
 
-      {/* Bloco do Terminal */}
-      {showTerminal && (
-        <div
-          className="shrink-0 flex overflow-hidden rounded-[5px]"
-          style={{
-            height: terminalHeight,
-            background: '#000000',
-            border: '1px solid var(--vs-border-group)',
-          }}
-        >
-          <TerminalPanel />
+          <div
+            className="shrink-0 flex overflow-hidden rounded-[5px]"
+            style={{
+              height: terminalHeight,
+              background: '#000000',
+              border: '1px solid var(--vs-border-group)',
+            }}
+          >
+            <TerminalPanel />
+          </div>
         </div>
       )}
     </div>
