@@ -82,6 +82,11 @@ export default function FileTreeItem({
     <div>
       <div
         onClick={handleClick}
+        onDoubleClick={(e) => {
+          e.preventDefault();
+          onSelect(isFolder ? fullPath : parentPath);
+          onContextMenu(e, { ...item, fullPath, isFolder });
+        }}
         onContextMenu={(e) => {
           e.preventDefault();
           onSelect(isFolder ? fullPath : parentPath);

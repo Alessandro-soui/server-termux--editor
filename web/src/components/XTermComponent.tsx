@@ -59,6 +59,21 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     
+    // Suporte para colar via Ctrl+V (útil em navegadores/mobile dependendo do teclado)
+    term.attachCustomKeyEventHandler((arg) => {
+      if (arg.ctrlKey && arg.code === 'KeyV' && arg.type === 'keydown') {
+        navigator.clipboard.readText().then(text => {
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: 'input', data: text }));
+          }
+        }).catch(err => {
+          console.error('Falha ao ler área de transferência: ', err);
+        });
+        return false;
+      }
+      return true;
+    });
+    
     term.open(containerRef.current);
     terminalRef.current = term;
     fitAddonRef.current = fitAddon;

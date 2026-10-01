@@ -7,13 +7,13 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { VscNewFile as FilePlus, VscNewFolder as FolderPlus, VscFolderOpened as FolderOpen, VscKey as KeyRound, VscRefresh as RefreshCw, VscClose as X } from 'react-icons/vsc';
+import { VscNewFile as FilePlus, VscNewFolder as FolderPlus, VscFolderOpened as FolderOpen, VscKey as KeyRound, VscRefresh as RefreshCw, VscClose as X, VscSaveAll as Save } from 'react-icons/vsc';
 import { api, getErrorMessage, type FolderItem } from '../api/client';
 import { useSettings } from '../context/SettingsContext';
 import { useWorkspace } from '../context/WorkspaceContext';
 import FileTreeItem, { type TreeNode } from './FileTreeItem';
 
-type ContextMenuAction = 'rename' | 'delete';
+type ContextMenuAction = 'rename' | 'delete' | 'terminal';
 
 interface ContextMenuProps {
   x: number;
@@ -38,6 +38,10 @@ function ContextMenu({ x, y, target, onClose, onAction }: ContextMenuProps) {
     { key: 'rename', label: 'Renomear' },
     { key: 'delete', label: 'Excluir' },
   ];
+
+  if (target.isFolder) {
+    items.push({ key: 'terminal', label: 'Abrir no Terminal' });
+  }
 
   return (
     <div
@@ -81,9 +85,30 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
     root: null,
     path: null,
   });
-  const { treeVersion, refreshTree, closeTab, rootPath, rootName, openFolderPicker } = useWorkspace();
+  const {
+    treeVersion,
+    refreshTree,
+    closeTab,
+    rootPath,
+    rootName,
+    openFolderPicker,
+    requestTerminal,
+    tabs,
+    activeTabPath,
+    saveActiveTab,
+    isSaving
+  } = useWorkspace();
   const { hasToken } = useSettings();
   const navigate = useNavigate();
+
+  const tab = tabs.find((t) => t.path === activeTabPath);
+  const isDirty = Boolean(tab) && tab!.content !== tab!.originalContent;
+
+  const handleSave = () => {
+    void saveActiveTab().then((res) => {
+      if (!res.ok && res.error) alert(res.error);
+    });
+  };
 
   const selectedFolder = selection.root === rootPath ? selection.path : rootPath;
   const handleSelect = useCallback(
@@ -186,6 +211,10 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
         alert(getErrorMessage(err));
       }
     }
+
+    if (action === 'terminal') {
+      requestTerminal(target.fullPath);
+    }
   };
 
   return (
@@ -194,7 +223,21 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
       style={{ width: `${width}px` }}
     >
       <div className="flex items-center justify-between px-3 pt-2 pb-1 text-[11px] tracking-wide text-[color:var(--vs-text-muted)] shrink-0">
-        <span>EXPLORER</span>
+        <div className="flex items-center gap-3">
+          <span>EXPLORER</span>
+          {tab && (
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !isDirty}
+              title="Salvar arquivo aberto (Ctrl+S)"
+              className="flex items-center gap-1 normal-case disabled:opacity-40 hover:text-white"
+              style={{ color: isDirty ? 'var(--vs-text)' : 'var(--vs-text-dim)' }}
+            >
+              <Save size={12} />
+              <span>{isSaving ? 'Salvando...' : 'Salvar'}</span>
+            </button>
+          )}
+        </div>
         <button
           onClick={onRequestClose}
           title="Esconder o Explorer"

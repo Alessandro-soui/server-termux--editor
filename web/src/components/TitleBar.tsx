@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { VscEllipsis as MoreHorizontal, VscLayoutSidebarLeft as PanelLeft, VscSaveAll as Save } from 'react-icons/vsc';
+
+import { VscLayoutSidebarLeft as PanelLeft } from 'react-icons/vsc';
 import { useWorkspace } from '../context/WorkspaceContext';
-import TitleBarMenuModal from './TitleBarMenuModal';
 
 interface TitleBarProps {
   activePath?: string;
@@ -10,11 +9,7 @@ interface TitleBarProps {
 }
 
 export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: TitleBarProps) {
-  const { tabs, activeTabPath, saveActiveTab, isSaving, rootName, rootPath, openQuickOpen, isTerminalOpen, toggleTerminal } = useWorkspace();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const tab = tabs.find((t) => t.path === activeTabPath);
-  const isDirty = Boolean(tab) && tab!.content !== tab!.originalContent;
+  const { rootName, rootPath, openQuickOpen, isTerminalOpen, toggleTerminal } = useWorkspace();
 
   // "Command center": nome do arquivo aberto, ou da pasta aberta, no centro.
   const centerLabel = activePath
@@ -22,12 +17,6 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
     : rootPath
       ? rootName
       : 'Explorer';
-
-  const handleSave = () => {
-    void saveActiveTab().then((res) => {
-      if (!res.ok && res.error) alert(res.error);
-    });
-  };
 
   return (
     <div
@@ -47,6 +36,16 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
       </button>
 
       <button
+        onClick={toggleTerminal}
+        disabled={!rootPath}
+        title={rootPath ? "Terminal" : "Abra uma pasta para usar o Terminal"}
+        className="shrink-0 px-2 py-1 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed uppercase font-semibold"
+        style={{ color: isTerminalOpen && rootPath ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
+      >
+        Terminal
+      </button>
+
+      <button
         onClick={openQuickOpen}
         title="Buscar arquivo (Ctrl+P)"
         className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 h-6 w-[38%] max-w-72 min-w-[110px] px-2 rounded-[3px] text-[12px] min-w-0"
@@ -58,47 +57,6 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
       >
         <span className="truncate text-[11px]">{centerLabel}</span>
       </button>
-
-      <div className="ml-auto flex items-center gap-1">
-        {tab && (
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !isDirty}
-            title="Salvar (Ctrl+S)"
-            className="shrink-0 flex items-center gap-1 px-2 py-1 text-[11px] disabled:opacity-40"
-            style={{ color: isDirty ? 'var(--vs-text)' : 'var(--vs-text-dim)' }}
-          >
-            <Save size={12} />
-            {isSaving ? 'Salvando...' : 'Save'}
-          </button>
-        )}
-
-        <button
-          onClick={toggleTerminal}
-          disabled={!rootPath}
-          title={rootPath ? "Terminal" : "Abra uma pasta para usar o Terminal"}
-          className="shrink-0 px-2 py-1 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed uppercase font-semibold"
-          style={{ color: isTerminalOpen && rootPath ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
-        >
-          Terminal
-        </button>
-
-        <button
-          onClick={() => setIsMenuOpen((v) => !v)}
-          title="Mais acoes"
-          className="shrink-0 p-1"
-          style={{ color: isMenuOpen ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
-        >
-          <MoreHorizontal size={15} />
-        </button>
-      </div>
-
-      <TitleBarMenuModal
-        open={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        canSave={isDirty}
-        onSave={handleSave}
-      />
     </div>
   );
 }

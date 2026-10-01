@@ -1,10 +1,10 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { VscAdd, VscTrash, VscArrowUp, VscArrowDown, VscArrowLeft, VscArrowRight, VscNewline, VscClearAll, VscTerminal } from 'react-icons/vsc';
 import { useWorkspace } from '../context/WorkspaceContext';
 import XTermComponent, { type XTermRef } from './XTermComponent';
 
 export default function TerminalPanel() {
-  const { isTerminalOpen, rootPath } = useWorkspace();
+  const { isTerminalOpen, rootPath, setTerminalOpen, terminalRequests, consumeTerminalRequests } = useWorkspace();
   const [terminals, setTerminals] = useState<{ id: number; name: string; cwd: string }[]>([]);
   const [activeTermId, setActiveTermId] = useState<number | null>(null);
   const [nextId, setNextId] = useState(1);
@@ -13,19 +13,30 @@ export default function TerminalPanel() {
   // Só mostra o painel se estiver aberto E houver uma pasta raiz selecionada
   if (!isTerminalOpen || !rootPath) return null;
 
-  const handleAddTerminal = () => {
-    const newTerm = { id: nextId, name: `bash`, cwd: rootPath };
+  const handleAddTerminal = useCallback((overrideCwd?: string) => {
+    const newTerm = { id: nextId, name: `bash`, cwd: typeof overrideCwd === 'string' ? overrideCwd : rootPath };
     setTerminals((prev) => [...prev, newTerm]);
     setActiveTermId(nextId);
     setNextId((id) => id + 1);
-  };
+  }, [nextId, rootPath]);
+
+  useEffect(() => {
+    if (terminalRequests.length > 0) {
+      terminalRequests.forEach((cwd) => {
+        handleAddTerminal(cwd);
+      });
+      consumeTerminalRequests();
+    }
+  }, [terminalRequests, handleAddTerminal, consumeTerminalRequests]);
 
   const handleRemoveTerminal = (id: number) => {
     setTerminals((prev) => {
       const updated = prev.filter((t) => t.id !== id);
-      if (activeTermId === id) {
+      if (updated.length === 0) {
+        setTerminalOpen(false);
+      } else if (activeTermId === id) {
         // Ativa o último da lista se removermos o ativo
-        setActiveTermId(updated.length > 0 ? updated[updated.length - 1].id : null);
+        setActiveTermId(updated[updated.length - 1].id);
       }
       return updated;
     });
@@ -36,8 +47,8 @@ export default function TerminalPanel() {
     setTerminals((prev) => prev.map((t) => t.id === id ? { ...t, name: newName } : t));
   }, []);
 
-  // Cria um terminal automaticamente se não houver nenhum
-  if (terminals.length === 0) {
+  // Cria um terminal automaticamente se não houver nenhum E o painel estiver aberto
+  if (terminals.length === 0 && isTerminalOpen) {
     handleAddTerminal();
   }
 
@@ -99,7 +110,7 @@ export default function TerminalPanel() {
         <div className="flex items-center justify-between px-2 h-6 border-b" style={{ borderColor: 'var(--vs-border-light)' }}>
           <span className="text-[10px] font-semibold text-gray-400 uppercase">Terminais</span>
           <button 
-            onClick={handleAddTerminal}
+            onClick={() => handleAddTerminal()}
             className="p-0.5 hover:bg-white/10 rounded"
             title="Novo Terminal"
           >

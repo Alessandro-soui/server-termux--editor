@@ -67,7 +67,7 @@ export default function EditorGroup() {
           className="shrink-0 flex overflow-hidden rounded-[5px]"
           style={{
             height: terminalHeight,
-            background: 'var(--vs-bg-editor)',
+            background: '#000000',
             border: '1px solid var(--vs-border-group)',
           }}
         >
