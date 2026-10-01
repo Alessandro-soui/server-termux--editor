@@ -360,9 +360,9 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
         onDoubleClick={onResizeReset}
         title="Arraste para redimensionar"
         className="absolute top-0 h-full w-4 cursor-col-resize touch-none select-none flex items-center justify-center z-50"
-        style={{ right: '-11px', background: 'transparent' }}
+        style={{ right: '-12px', background: 'transparent' }}
       >
-        <div className="w-1 h-12 bg-gray-600 rounded-full opacity-60" />
+        <div className="w-[2px] h-12 bg-gray-600 rounded-full opacity-60" />
       </div>
     </div>
   );

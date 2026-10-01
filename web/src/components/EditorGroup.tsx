@@ -62,7 +62,7 @@ export default function EditorGroup() {
             style={{ top: '-11px' }}
             onPointerDown={handleResizeStart}
           >
-            <div className="w-12 h-1 bg-gray-600 rounded-full opacity-60" />
+            <div className="w-12 h-[2px] bg-gray-600 rounded-full opacity-60" />
           </div>
 
           <div
