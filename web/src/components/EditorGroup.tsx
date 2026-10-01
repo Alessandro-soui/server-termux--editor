@@ -58,7 +58,8 @@ export default function EditorGroup() {
         <div className="relative shrink-0 flex flex-col">
           {/* Divisor / Resizer - absolute para não somar espaços no gap do flex */}
           <div
-            className="absolute left-0 right-0 -top-2 h-4 cursor-row-resize z-20 flex items-center justify-center touch-none"
+            className="absolute left-0 right-0 h-4 cursor-row-resize z-20 flex items-center justify-center touch-none"
+            style={{ top: '-11px' }}
             onPointerDown={handleResizeStart}
           >
             <div className="w-12 h-1 bg-gray-600 rounded-full opacity-60" />

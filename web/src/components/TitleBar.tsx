@@ -48,7 +48,7 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
       <button
         onClick={openQuickOpen}
         title="Buscar arquivo (Ctrl+P)"
-        className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 h-6 w-[38%] max-w-72 min-w-[110px] px-2 rounded-[3px] text-[12px] min-w-0"
+        className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-1.5 h-6 w-[38%] max-w-72 min-w-[110px] px-2 rounded-[3px] text-[12px] min-w-0"
         style={{
           background: 'var(--vs-bg-app)',
           border: '1px solid var(--vs-border-light)',
