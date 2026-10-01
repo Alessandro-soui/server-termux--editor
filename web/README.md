@@ -5,7 +5,7 @@ com arvore de arquivos, abas, editor e status bar), consumindo a
 `termux-file-api` (Express) para listar, abrir, editar, criar, renomear e
 deletar arquivos/pastas dentro da home do Termux.
 
-Stack: **Vite + React 19 + Tailwind CSS v4 + React Router v7 + lucide-react**.
+Stack: **Vite + React 19 + Tailwind CSS v4 + React Router v7 + lucide-react + xterm.js**.
 
 ## Como foi criado
 
@@ -14,7 +14,7 @@ npm create vite@latest vscode-clone-react -- --template react
 cd vscode-clone-react
 npm install
 npm install -D tailwindcss @tailwindcss/postcss postcss autoprefixer
-npm install react-router-dom lucide-react
+npm install react-router-dom lucide-react xterm xterm-addon-fit
 ```
 
 ## Rodar
@@ -177,8 +177,10 @@ src/
 │   ├── Sidebar.tsx            # Explorer: abrir pasta, novo arquivo/pasta na pasta selecionada, atualizar
 │   ├── FileTreeItem.tsx       # item recursivo da arvore (expande, seleciona a pasta)
 │   ├── TabBar.tsx             # tab strip do grupo (aba ativa fundida com o editor)
-│   ├── EditorGroup.tsx        # card do grupo: tab strip + EditorPane, com borda e cantos
+│   ├── EditorGroup.tsx        # card do grupo: tab strip + EditorPane + TerminalPanel
 │   ├── EditorPane.tsx         # barra do caminho, preview de imagem/binario ou textarea com numeros de linha
+│   ├── TerminalPanel.tsx      # painel na base do editor para gerenciar instâncias de terminais PTY
+│   ├── XTermComponent.tsx     # encapsula a renderização nativa do xterm.js e conexão com WS do backend
 │   ├── TitleBarMenuModal.tsx  # menu "..." da title bar (por enquanto: Save)
 │   ├── QuickOpenModal.tsx     # busca rapida de arquivos (Ctrl+P)
 │   └── OpenFolderModal.tsx    # modal "Abrir pasta" (arvore de pastas da home)
@@ -204,6 +206,7 @@ src/
 - Renomear/excluir arquivo ou pasta (clique direito no item).
 - Indicador de "nao salvo" na aba (bolinha branca no lugar do X).
 - Tela de Settings para trocar URL base e o token da sessao.
+- **Terminal Integrado**: Botão na TitleBar abre um painel inferior contendo terminais verdadeiros conectados ao Bash do Termux via WebSockets e xterm.js, com atalhos na tela para dispositivos touch.
 
 ## Build de produção
 

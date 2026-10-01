@@ -12,8 +12,8 @@ termux-file-api/
 ├── .env                    # Variaveis de ambiente (API_TOKEN, PORT)
 ├── .gitignore
 ├── API.md                  # Documentacao detalhada de todas as rotas da API
-├── package.json            # Dependencias do backend (express, dotenv)
-├── server.js               # Entry point: configura Express, middlewares, rotas
+├── package.json            # Dependencias do backend (express, dotenv, ws)
+├── server.js               # Entry point: configura Express, HTTP Server (WS), middlewares e rotas
 ├── config/
 │   └── config.js           # Carrega .env, define ROOT_DIR (home do Termux), PORT, HOST, NETWORK_ACCESS, API_TOKEN
 ├── middleware/
@@ -22,7 +22,8 @@ termux-file-api/
 │   └── errorHandler.js     # Mapeia codigos de erro para HTTP status e formato JSON
 ├── routes/
 │   ├── folders.js          # Rotas de pastas (listar, criar, renomear, deletar)
-│   └── files.js            # Rotas de arquivos (criar, ler, raw, buscar, salvar, renomear, deletar)
+│   ├── files.js            # Rotas de arquivos (criar, ler, raw, buscar, salvar, renomear, deletar)
+│   └── terminal.js         # Lida com WebSockets, droid-pty, e envia I/O do terminal interativo
 ├── utils/
 │   └── pathUtils.js        # resolveSafePath(): resolve caminhos relativos de forma segura dentro do ROOT_DIR
 ├── public/                 # Arquivos estaticos servidos pelo Express (build do front)
@@ -38,12 +39,14 @@ termux-file-api/
 ## Backend (raiz do projeto)
 
 ### `server.js` — Entry point
-- Cria app Express
-- `requestLogger` global (antes de tudo): loga **toda** requisicao
+- Cria app Express e um servidor HTTP dedicado (`http.createServer()`)
+- `requestLogger` global (antes de tudo): loga **toda** requisicao HTTP
 - `express.json()` para parse de JSON
 - `express.static('public')` serve o build do front em producao
 - Aplica `authMiddleware` em **todas** as rotas `/api/*`
 - Monta rotas: `/api/folders` -> `foldersRoutes`, `/api/files` -> `filesRoutes`
+- Cria `WebSocketServer` e captura o evento HTTP `upgrade`
+- Valida o `token` via query param (`?token=`) antes de aceitar a conexão do WebSocket em `/api/terminal`. Se válido, roteia para o `routes/terminal.js`.
 - `errorHandler` por ultimo para capturar erros nao tratados
 - Escuta na `PORT` no host definido por `NETWORK_ACCESS` (`127.0.0.1` ou `0.0.0.0`) e loga `ROOT_DIR`
 
@@ -121,6 +124,10 @@ Retorna JSON padrao: `{ success: false, error: { code, message } }`
 | `PUT` | `/content` | Salva/atualiza conteudo. Body: `{ path, content }`. Cria se nao existe, sobrescreve se existe. |
 | `PATCH` | `/rename` | Renomeia arquivo. Body: `{ path, newName }` |
 | `DELETE` | `/` | Deleta arquivo. Query: `path` |
+
+### `routes/terminal.js` — `/api/terminal` (WebSockets)
+Lida com as requisições de WebSockets autenticadas via `?token=...`.
+Instancia o `bash` utilizando a biblioteca `droid-pty` (nativo do Android/Termux). Repassa os eventos de digitação e redimensionamento (`resize`) vindos do frontend para o PTY e envia a saída do PTY de volta via WS.
 
 ---
 

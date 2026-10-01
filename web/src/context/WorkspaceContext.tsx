@@ -40,6 +40,8 @@ export interface WorkspaceContextValue {
   isQuickOpenOpen: boolean;
   openQuickOpen: () => void;
   closeQuickOpen: () => void;
+  isTerminalOpen: boolean;
+  toggleTerminal: () => void;
 }
 
 export const HOME_PATH = '/';
@@ -60,6 +62,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [rootPath, setRootPath] = useState<string | null>(null);
   const [isFolderPickerOpen, setFolderPickerOpen] = useState(false);
   const [isQuickOpenOpen, setQuickOpenOpen] = useState(false);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   // URLs de preview (imagens): criadas com createObjectURL e revogadas ao
   // fechar a aba ou ao desmontar, para nao vazar memoria.
@@ -80,6 +83,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const openQuickOpen = useCallback(() => setQuickOpenOpen(true), []);
   const closeQuickOpen = useCallback(() => setQuickOpenOpen(false), []);
+  const toggleTerminal = useCallback(() => setIsTerminalOpen((v) => !v), []);
 
   // Ctrl+P / Ctrl+Shift+P abrem a busca de arquivos de qualquer lugar.
   useEffect(() => {
@@ -228,6 +232,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         isQuickOpenOpen,
         openQuickOpen,
         closeQuickOpen,
+        isTerminalOpen,
+        toggleTerminal,
       }}
     >
       {children}

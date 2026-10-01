@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { VscEllipsis as MoreHorizontal, VscLayoutSidebarLeft as PanelLeft, VscSaveAll as Save } from 'react-icons/vsc';
+import { VscEllipsis as MoreHorizontal, VscLayoutSidebarLeft as PanelLeft, VscSaveAll as Save, VscTerminal as TerminalIcon } from 'react-icons/vsc';
 import { useWorkspace } from '../context/WorkspaceContext';
 import TitleBarMenuModal from './TitleBarMenuModal';
 
@@ -10,7 +10,7 @@ interface TitleBarProps {
 }
 
 export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: TitleBarProps) {
-  const { tabs, activeTabPath, saveActiveTab, isSaving, rootName, rootPath, openQuickOpen } = useWorkspace();
+  const { tabs, activeTabPath, saveActiveTab, isSaving, rootName, rootPath, openQuickOpen, isTerminalOpen, toggleTerminal } = useWorkspace();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const tab = tabs.find((t) => t.path === activeTabPath);
@@ -72,6 +72,15 @@ export default function TitleBar({ activePath, sidebarOpen, onToggleSidebar }: T
             {isSaving ? 'Salvando...' : 'Save'}
           </button>
         )}
+
+        <button
+          onClick={toggleTerminal}
+          title="Terminal"
+          className="shrink-0 p-1"
+          style={{ color: isTerminalOpen ? 'var(--vs-text)' : 'var(--vs-text-muted)' }}
+        >
+          <TerminalIcon size={14} />
+        </button>
 
         <button
           onClick={() => setIsMenuOpen((v) => !v)}

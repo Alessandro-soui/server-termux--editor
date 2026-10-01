@@ -381,6 +381,38 @@ DELETE /api/files?path=<caminho>
 
 ---
 
+## 3. API de Terminal (WebSocket)
+
+### 3.1 Terminal interativo (`droid-pty`)
+
+```
+ws://<host>:<port>/api/terminal?token=<token>
+```
+
+> **Atenção:** Como o navegador não envia headers HTTP customizados em conexões WebSocket, a autenticação desta rota é feita exclusivamente pelo *query parameter* `token`.
+
+A API cria um processo filho (`bash -l`) na home (`ROOT_DIR`) e faz o bypass bidirecional.
+
+**Comunicação (Cliente → Servidor)**
+O cliente deve enviar strings JSON para interagir ou redimensionar o terminal:
+
+| Tipo | Formato JSON | Ação |
+|---|---|---|
+| Input (Teclado) | `{"type":"input", "data":"ls\r"}` | Escreve comandos ou teclas no PTY. |
+| Redimensionar | `{"type":"resize", "cols": 80, "rows": 24}` | Ajusta as dimensões da janela (usado pelo `xterm-addon-fit`). |
+
+**Comunicação (Servidor → Cliente)**
+O servidor devolve os dados em JSON para garantir estabilidade:
+
+| Tipo | Formato JSON | Motivo |
+|---|---|---|
+| Output | `{"type":"output", "data":"..."}` | Retorno de texto gerado pelo bash/comando. |
+| Encerramento | `{"type":"exit", "code": 0, "signal": null}` | O processo do terminal terminou. A conexão será fechada logo a seguir. |
+
+**Erros:** Se o token for inválido, o servidor fecha a conexão durante o *upgrade* (`HTTP/1.1 401 Unauthorized`). Se o PTY não puder ser iniciado (ex: erro no `droid-pty`), o WebSocket é fechado imediatamente.
+
+---
+
 ## Resumo das Rotas
 
 | Método | Rota | Ação |

@@ -1,5 +1,6 @@
 import TabBar from './TabBar';
 import EditorPane from './EditorPane';
+import TerminalPanel from './TerminalPanel';
 
 // O "grupo de editors" do VS Code: a tab strip e a area de edicao formam um
 // unico card com borda e cantos arredondados. O espacamento ao redor vem do
@@ -15,6 +16,7 @@ export default function EditorGroup() {
     >
       <TabBar />
       <EditorPane />
+      <TerminalPanel />
     </div>
   );
 }

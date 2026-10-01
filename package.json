@@ -4,11 +4,12 @@
   "description": "API de arquivos e pastas restrita a home do Termux, com autenticacao por token",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --experimental-ffi server.js"
   },
   "dependencies": {
     "dotenv": "^18.0.4",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
