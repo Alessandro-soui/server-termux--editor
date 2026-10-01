@@ -359,9 +359,11 @@ export default function Sidebar({ onRequestClose, width, onResizeStart, onResize
         onPointerDown={onResizeStart}
         onDoubleClick={onResizeReset}
         title="Arraste para redimensionar"
-        className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize touch-none select-none"
+        className="absolute right-0 top-0 h-full w-3 cursor-col-resize touch-none select-none flex items-center justify-end"
         style={{ background: 'transparent' }}
-      />
+      >
+        <div className="w-1 h-12 bg-gray-600 rounded-full mr-0.5 opacity-50" />
+      </div>
     </div>
   );
 }

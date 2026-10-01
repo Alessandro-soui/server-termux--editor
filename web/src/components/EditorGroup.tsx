@@ -56,9 +56,12 @@ export default function EditorGroup() {
       {/* Divisor / Resizer */}
       {showTerminal && (
         <div
-          className="h-1 -my-1.5 shrink-0 cursor-row-resize z-10 transition-colors hover:bg-blue-500/50"
+          className="h-2 shrink-0 cursor-row-resize z-10 flex items-center justify-center touch-none"
           onPointerDown={handleResizeStart}
-        />
+          style={{ background: 'var(--vs-bg-app)' }}
+        >
+          <div className="w-12 h-1 bg-gray-600 rounded-full" />
+        </div>
       )}
 
       {/* Bloco do Terminal */}
