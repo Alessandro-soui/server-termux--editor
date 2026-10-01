@@ -105,12 +105,10 @@ fundo `--vs-bg-sidebar`, e dentro dele dois cards com a mesma moldura
 
 ## Salvar
 
-- Botao **Save** na title bar, do lado do menu `...` (so aparece com aba
-  aberta; desabilitado quando nao ha alteracao).
-- Menu `...` da title bar: por enquanto um unico item, **Save**.
+- Botao **Salvar** fica no cabecalho do **Explorer** (Sidebar) ao lado do titulo `EXPLORER` (so aparece com aba de texto aberta; desabilitado quando nao ha alteracao).
 - `Ctrl+S` / `Cmd+S` em qualquer lugar da janela.
 
-Abas de imagem ou binario nao sao editaveis: `Ctrl+S` e o botao **Save** ficam
+Abas de imagem ou binario nao sao editaveis: `Ctrl+S` e o botao **Salvar** ficam
 desabilitados, para nunca sobrescrever o arquivo com texto vazio.
 
 ## Editor
@@ -171,17 +169,15 @@ src/
 ├── components/
 │   ├── Layout.tsx             # title bar + frame dos cards + status bar + <Outlet/>
 │   ├── ActivityBar.tsx        # icones Explorer / Settings (react-router NavLink)
-│   ├── TitleBar.tsx           # titulo, botao Save, menu "..." e toggle do Explorer
-│   ├── TitleBarMenuModal.tsx  # menu "..." da title bar (por enquanto: Save)
+│   ├── TitleBar.tsx           # titulo, busca rápida, botão do Terminal e toggle do Explorer
 │   ├── StatusBar.tsx          # "Token configurado" leva para /settings
-│   ├── Sidebar.tsx            # Explorer: abrir pasta, novo arquivo/pasta na pasta selecionada, atualizar
-│   ├── FileTreeItem.tsx       # item recursivo da arvore (expande, seleciona a pasta)
+│   ├── Sidebar.tsx            # Explorer: abrir pasta, botão Salvar, arquivos, novo arquivo/pasta
+│   ├── FileTreeItem.tsx       # item recursivo da arvore (duplo clique p/ opções, inclui 'Abrir no Terminal')
 │   ├── TabBar.tsx             # tab strip do grupo (aba ativa fundida com o editor)
 │   ├── EditorGroup.tsx        # card do grupo: tab strip + EditorPane + TerminalPanel
 │   ├── EditorPane.tsx         # barra do caminho, preview de imagem/binario ou textarea com numeros de linha
-│   ├── TerminalPanel.tsx      # painel na base do editor para gerenciar instâncias de terminais PTY
-│   ├── XTermComponent.tsx     # encapsula a renderização nativa do xterm.js e conexão com WS do backend
-│   ├── TitleBarMenuModal.tsx  # menu "..." da title bar (por enquanto: Save)
+│   ├── TerminalPanel.tsx      # painel gerenciador de terminais, suporta instanciar vários e fechar tudo
+│   ├── XTermComponent.tsx     # xterm.js nativo + WebSockets (suporta Ctrl+V colando clipboard)
 │   ├── QuickOpenModal.tsx     # busca rapida de arquivos (Ctrl+P)
 │   └── OpenFolderModal.tsx    # modal "Abrir pasta" (arvore de pastas da home)
 ├── pages/
@@ -203,10 +199,11 @@ src/
   binarios.
 - Busca rápida de arquivos por nome (`Ctrl+P` ou a caixa central da title bar).
 - Criar arquivo/pasta na raiz (botões no topo do Explorer).
-- Renomear/excluir arquivo ou pasta (clique direito no item).
+- Renomear/excluir arquivo ou pasta, e **Abrir no Terminal** (clique direito ou duplo-toque).
 - Indicador de "nao salvo" na aba (bolinha branca no lugar do X).
 - Tela de Settings para trocar URL base e o token da sessao.
-- **Terminal Integrado**: Botão na TitleBar abre um painel inferior contendo terminais verdadeiros conectados ao Bash do Termux via WebSockets e xterm.js, com atalhos na tela para dispositivos touch.
+- **Terminal Integrado**: Botão central na TitleBar abre um painel preto inferior contendo múltiplos terminais conectados ao Bash do Termux via WebSockets (xterm.js). Suporta colar texto nativamente com Ctrl+V.
+- **Redimensionadores Otimizados para Mobile**: Barras de puxar visíveis (linhas cinzas) para arrastar e ajustar o tamanho do terminal e do menu lateral de forma fluida no touch.
 
 ## Build de produção
 
