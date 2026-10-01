@@ -112,17 +112,25 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd
 
     const handleResize = () => {
       if (visibleRef.current) {
-        fitAddon.fit();
-        const dims = fitAddon.proposeDimensions();
-        if (dims && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'resize', cols: dims.cols, rows: dims.rows }));
-        }
+        try {
+          fitAddon.fit();
+          const dims = fitAddon.proposeDimensions();
+          if (dims && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'resize', cols: dims.cols, rows: dims.rows }));
+          }
+        } catch (e) {}
       }
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      window.requestAnimationFrame(() => handleResize());
+    });
+    resizeObserver.observe(containerRef.current);
 
     window.addEventListener('resize', handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
       term.dispose();
       ws.close();
@@ -134,21 +142,30 @@ const XTermComponent = forwardRef<XTermRef, XTermComponentProps>(({ visible, cwd
     if (visible && fitAddonRef.current) {
       // O xterm precisa de um tempinho apos o CSS apply
       setTimeout(() => {
-        fitAddonRef.current?.fit();
-        const dims = fitAddonRef.current?.proposeDimensions();
-        if (dims && wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({ type: 'resize', cols: dims.cols, rows: dims.rows }));
-        }
+        try {
+          fitAddonRef.current?.fit();
+          const dims = fitAddonRef.current?.proposeDimensions();
+          if (dims && wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: 'resize', cols: dims.cols, rows: dims.rows }));
+          }
+        } catch (e) {}
       }, 50);
     }
   }, [visible]);
 
   return (
-    <div 
-      className="w-full h-full p-2 overflow-hidden" 
-      ref={containerRef}
-      style={{ display: visible ? 'block' : 'none' }}
-    />
+    <>
+      <style>{`
+        .hide-xterm-scroll .xterm-viewport {
+          overflow-y: hidden !important;
+        }
+      `}</style>
+      <div 
+        className="w-full h-full p-2 overflow-hidden hide-xterm-scroll" 
+        ref={containerRef}
+        style={{ display: visible ? 'block' : 'none' }}
+      />
+    </>
   );
 });
 

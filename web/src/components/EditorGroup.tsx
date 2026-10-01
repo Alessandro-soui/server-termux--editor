@@ -9,17 +9,21 @@ export default function EditorGroup() {
   const showTerminal = isTerminalOpen && Boolean(rootPath);
   const [terminalHeight, setTerminalHeight] = useState(256);
   const heightRef = useRef(terminalHeight);
+  const groupRef = useRef<HTMLDivElement>(null);
 
   const handleResizeStart = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     const startY = e.clientY;
     const startHeight = heightRef.current;
+    
+    // O tamanho máximo é a altura total do grupo (menos um respiro para o editor)
+    const maxH = groupRef.current ? groupRef.current.clientHeight - 100 : window.innerHeight - 150;
 
     const move = (ev: PointerEvent) => {
       // Movimento para cima aumenta o terminal (clientY menor = delta negativo)
       const deltaY = startY - ev.clientY;
-      const nextHeight = Math.max(100, Math.min(window.innerHeight - 150, startHeight + deltaY));
+      const nextHeight = Math.max(100, Math.min(maxH, startHeight + deltaY));
       heightRef.current = nextHeight;
       setTerminalHeight(nextHeight);
     };
@@ -36,7 +40,7 @@ export default function EditorGroup() {
   }, []);
 
   return (
-    <div className="flex-1 min-w-0 flex flex-col overflow-hidden gap-1.5">
+    <div ref={groupRef} className="flex-1 min-w-0 flex flex-col overflow-hidden gap-1.5">
       {/* Bloco do Editor */}
       <div
         className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-[5px]"
