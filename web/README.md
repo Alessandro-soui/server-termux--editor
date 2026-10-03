@@ -202,7 +202,7 @@ src/
 - Renomear/excluir arquivo ou pasta, e **Abrir no Terminal** (clique direito ou duplo-toque).
 - Indicador de "nao salvo" na aba (bolinha branca no lugar do X).
 - Tela de Settings para trocar URL base e o token da sessao.
-- **Terminal Integrado**: Botão central na TitleBar abre um painel preto inferior contendo múltiplos terminais conectados ao Bash do Termux via WebSockets (xterm.js). Suporta colar texto nativamente com Ctrl+V.
+- **Terminal Integrado**: Botão esquerdo na TitleBar (ao lado do menu) abre um painel preto inferior contendo múltiplos terminais conectados ao Bash do Termux via WebSockets (xterm.js). Suporta colar texto nativamente com Ctrl+V.
 - **Redimensionadores Otimizados para Mobile**: Barras de puxar visíveis (linhas cinzas) para arrastar e ajustar o tamanho do terminal e do menu lateral de forma fluida no touch.
 
 ## Build de produção

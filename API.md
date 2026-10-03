@@ -386,12 +386,12 @@ DELETE /api/files?path=<caminho>
 ### 3.1 Terminal interativo (`droid-pty`)
 
 ```
-ws://<host>:<port>/api/terminal?token=<token>
+ws://<host>:<port>/api/terminal?token=<token>&cwd=<path>
 ```
 
-> **Atenção:** Como o navegador não envia headers HTTP customizados em conexões WebSocket, a autenticação desta rota é feita exclusivamente pelo *query parameter* `token`.
+> **Atenção:** Como o navegador não envia headers HTTP customizados em conexões WebSocket, a autenticação desta rota é feita exclusivamente pelo *query parameter* `token`. O parâmetro `cwd` (caminho relativo) define em qual pasta o bash iniciará.
 
-A API cria um processo filho (`bash -l`) na home (`ROOT_DIR`) e faz o bypass bidirecional.
+A API cria um processo filho (`bash -l`) na pasta requisitada (validada contra o `ROOT_DIR`) e faz o bypass bidirecional.
 
 **Comunicação (Cliente → Servidor)**
 O cliente deve enviar strings JSON para interagir ou redimensionar o terminal:
@@ -407,9 +407,10 @@ O servidor devolve os dados em JSON para garantir estabilidade:
 | Tipo | Formato JSON | Motivo |
 |---|---|---|
 | Output | `{"type":"output", "data":"..."}` | Retorno de texto gerado pelo bash/comando. |
+| Processo | `{"type":"process", "name":"node"}` | Informa qual executável está em primeiro plano (ex: `bash`, `node`, `git`). Atualizado a cada 500ms (polling). |
 | Encerramento | `{"type":"exit", "code": 0, "signal": null}` | O processo do terminal terminou. A conexão será fechada logo a seguir. |
 
-**Erros:** Se o token for inválido, o servidor fecha a conexão durante o *upgrade* (`HTTP/1.1 401 Unauthorized`). Se o PTY não puder ser iniciado (ex: erro no `droid-pty`), o WebSocket é fechado imediatamente.
+**Erros:** Se o token for inválido, o servidor fecha a conexão durante o *upgrade* (`HTTP/1.1 401 Unauthorized`). Se o `cwd` for inválido (fora do `ROOT_DIR`), ou o PTY não puder ser iniciado (ex: erro no `droid-pty`), o WebSocket é fechado imediatamente.
 
 ---
 
@@ -428,3 +429,4 @@ O servidor devolve os dados em JSON para garantir estabilidade:
 | `PUT` | `/api/files/content` | Salva/sobrescreve conteúdo |
 | `PATCH` | `/api/files/rename` | Renomeia arquivo |
 | `DELETE` | `/api/files?path=` | Deleta arquivo |
+| `WS` | `/api/terminal?token=&cwd=` | Inicia um terminal interativo (WebSocket) |
